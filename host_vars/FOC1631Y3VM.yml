@@ -1,0 +1,14 @@
+---
+needs_interface_cycle: false
+net_l2_interfaces:
+  - name: GigabitEthernet0/1
+    mode: access
+    access:
+      vlan: 31
+  - name: GigabitEthernet0/8
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - 31
+      native_vlan: 1
+      encapsulation: dot1q

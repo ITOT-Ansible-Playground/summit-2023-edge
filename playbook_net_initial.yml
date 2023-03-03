@@ -1,0 +1,46 @@
+---
+- name: Add new switch
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Add host
+      ansible.builtin.add_host:
+        hostname: new-switch
+        groups: network
+        ansible_host: "{{ switch_ip }}"
+
+- name: Initial switch provisioning
+  hosts: new-switch
+  gather_facts: false
+  become: true
+  become_method: enable
+
+  tasks:
+    - name: Wait for SSH to be available
+      ansible.builtin.wait_for_connection:
+
+    - name: Gather facts
+      cisco.ios.ios_facts:
+        gather_subset: min
+      register: facts_out
+      until: facts_out is not failed
+      retries: 30
+      delay: 10
+
+    # We expect this to fail as the DHCP address falls off
+    - name: Set static IP address
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: Vlan1
+            ipv4:
+              - address: "{{ hostvars[ansible_net_serialnum]['ansible_host'] }}/{{ hostvars[ansible_net_serialnum]['net_cidr'] }}"
+        state: merged
+      ignore_errors: true
+
+    - name: Launch configuration job
+      ansible.controller.job_launch:
+        name: "{{ controller_jt_name_standard }}"
+        limit: "{{ ansible_net_serialnum }}"
+      delegate_to: localhost

@@ -1,0 +1,7 @@
+---
+all:
+  hosts:
+    controller:
+      ansible_host: 192.168.10.10
+    util:
+      ansible_host: 192.168.10.11

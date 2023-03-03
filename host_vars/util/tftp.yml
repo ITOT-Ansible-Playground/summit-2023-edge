@@ -1,0 +1,4 @@
+---
+tftp_path: /opt/ztp-tftp.py
+tftp_root: /var/tftproot
+tftp_python_path: /usr/bin/python3

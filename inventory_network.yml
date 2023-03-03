@@ -1,0 +1,6 @@
+---
+network:
+  hosts:
+    FOC1631Y3VM:
+      ansible_host: 192.168.10.101
+      net_cidr: 24

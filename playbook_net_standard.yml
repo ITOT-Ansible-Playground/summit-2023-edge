@@ -1,0 +1,32 @@
+---
+- name: Configure network switch
+  hosts: network
+  gather_facts: false
+  become: true
+  become_method: enable
+
+  tasks:
+    - name: Set hostname
+      cisco.ios.ios_hostname:
+        config:
+          hostname: "{{ inventory_hostname }}"
+
+    - name: Create VLANs
+      cisco.ios.ios_vlans:
+        config: "{{ net_vlans }}"
+        state: merged
+
+    - name: Configure interfaces
+      cisco.ios.ios_l2_interfaces:
+        config: "{{ net_l2_interfaces }}"
+        state: merged
+
+    - name: Cycle L2 access interfaces
+      cisco.ios.ios_interfaces:
+        config:
+          - name: "{{ item.0.name }}"
+            enabled: "{{ item.1 }}"
+      loop: "{{ net_l2_interfaces | product([False, True]) | list }}"
+      when:
+        - needs_interface_cycle
+        - item.0.mode == 'access'

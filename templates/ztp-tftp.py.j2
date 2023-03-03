@@ -1,0 +1,93 @@
+CONTROLLER_IP = "{{ hostvars.controller.ansible_host }}"
+CONTROLLER_JT_ID = "{{ lookup('ansible.controller.controller_api', 'job_templates', query_params={'name': controller_jt_name_initial}).id }}"
+CONTROLLER_TOKEN = "{{ hostvars.localhost.controller_token.token }}"
+TFTP_ROOT = "{{ tftp_root }}"
+
+from fbtftp.base_handler import BaseHandler
+from fbtftp.base_handler import ResponseData
+from fbtftp.base_server import BaseServer
+
+import os
+import glob
+import requests
+import json
+import time
+
+class FileResponseData(ResponseData):
+    def __init__(self, path):
+        self._size = os.stat(path).st_size
+        self._reader = open(path, 'rb')
+
+    def read(self, n):
+        return self._reader.read(n)
+
+    def size(self):
+        return self._size
+
+    def close(self):
+        self._reader.close()
+
+def print_session_stats(stats):
+    print('Peer: {}:{}/udp'.format(stats.peer[0], stats.peer[1]))
+    print('File Path: {}'.format(stats.file_path))
+    print('Packets Sent: {}'.format(stats.packets_sent))
+    if stats.packets_sent > 0:
+        controller_launch(stats.peer[0], stats.file_path)
+
+def print_server_stats(stats):
+    counters = stats.get_and_reset_all_counters()
+    print('Server stats - every {} seconds'.format(stats.interval))
+    print(counters)
+
+class StaticHandler(BaseHandler):
+    def __init__(self, server_addr, peer, path, options, root, stats_callback):
+        self._root = root
+        super().__init__(server_addr, peer, path, options, stats_callback)
+
+    def get_response_data(self):
+        return FileResponseData(os.path.join(self._root, self._path))
+
+class StaticServer(BaseServer):
+    def __init__(self, address, port, retries, timeout, root,
+                 handler_stats_callback, server_stats_callback=None):
+        self._root = root
+        self._handler_stats_callback = handler_stats_callback
+        super().__init__(address, port, retries, timeout, server_stats_callback)
+
+    def get_handler(self, server_addr, peer, path, options):
+        return StaticHandler(
+            server_addr, peer, path, options, self._root,
+            self._handler_stats_callback)
+
+def controller_launch(ip, file_path):
+    lock_file = '/tmp/ztp_{}_{}.lock'.format(ip, file_path)
+    if not os.path.exists(lock_file):
+        print('Launching job using address {} (Controller: {})...'.format(ip, CONTROLLER_IP))
+        f = open(lock_file, 'w')
+        launch_url = 'https://{}/api/v2/job_templates/{}/launch/'.format(CONTROLLER_IP, CONTROLLER_JT_ID)
+        launch_headers = {'Authorization': 'Bearer {}'.format(CONTROLLER_TOKEN), 'Content-Type': 'application/json'}
+        launch_data = {'extra_vars': 'switch_ip: {}'.format(ip)}
+        r = requests.post(launch_url, headers=launch_headers, data=json.dumps(launch_data), verify=False)
+        print('Controller {} returned status {}'.format(CONTROLLER_IP, r.status_code))
+        time.sleep(300)
+        f.close()
+        os.remove(lock_file)
+
+def main():
+    server = StaticServer(address='0.0.0.0', port=69, retries=3, timeout=5,
+                          root=TFTP_ROOT,
+                          handler_stats_callback=print_session_stats,
+                          server_stats_callback=print_server_stats)
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        try:
+            files = glob.glob('/tmp/ztp_*.lock')
+            for file in files:
+                os.remove(file)
+        except FileNotFoundError:
+            pass
+        server.close()
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,12 @@
+[Unit]
+Description=ZTP TFTP Server based on FBTFTP
+After=multi-user.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart={{ tftp_python_path }} {{ tftp_path }}
+ExecStop=rm -f /tmp/ztp*.lock
+
+[Install]
+WantedBy=multi-user.target

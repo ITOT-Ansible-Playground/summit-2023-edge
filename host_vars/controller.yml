@@ -1,0 +1,79 @@
+---
+controller_organizations:
+  - name: Network
+    galaxy_credentials:
+      - Ansible Galaxy
+  - name: Manufacturing
+    galaxy_credentials:
+      - Ansible Galaxy
+
+controller_projects:
+  - name: Network ZTP
+    organization: Network
+    scm_type: git
+    scm_url: https://github.com/zjpeterson/summit-2023-edge.git
+  - name: CIP Examples
+    organization: Manufacturing
+    scm_type: git
+    scm_url: https://github.com/jjaswanson4/ansiblefest-2022.git
+
+controller_inventories:
+  - name: Network switches
+    organization: Network
+  - name: PLCs
+    organization: Manufacturing
+
+controller_inventory_sources:
+  - name: Switch inventory
+    organziation: Network
+    inventory: Network switches
+    source: scm
+    source_project: Network ZTP
+    source_path: inventory_network.yml
+
+controller_credentials:
+  - name: Network SSH
+    organization: Network
+    credential_type: Machine
+  - name: ZTP Launch
+    organization: Network
+    credential_type: Red Hat Ansible Automation Platform
+
+controller_execution_environments:
+  - name: Industrial EE
+    image: quay.io/zachp/industrial-ee
+
+controller_templates:
+  - name: "{{ controller_jt_name_initial }}"
+    organization: Network
+    description: To be kicked off from TFTP hook
+    inventory: Network switches
+    project: Network ZTP
+    playbook: playbook_net_initial.yml
+    credentials:
+      - Network SSH
+      - ZTP Launch
+    execution_environment: Default execution environment
+    ask_variables_on_launch: true
+  - name: "{{ controller_jt_name_standard }}"
+    organization: Network
+    description: To be kicked off from initial provisioning or at admin discretion
+    inventory: Network switches
+    project: Network ZTP
+    playbook: playbook_net_standard.yml
+    credentials:
+      - Network SSH
+    ask_limit_on_launch: true
+    execution_environment: Default execution environment
+  - name: Blink LED
+    organization: Manufacturing
+    inventory: PLCs
+    project: CIP Examples
+    playbook: playbooks/blink-led.yml
+    execution_environment: Industrial EE
+  - name: Run motor
+    organization: Manufacturing
+    inventory: PLCs
+    project: CIP Examples
+    playbook: playbooks/run-motor.yml
+    execution_environment: Industrial EE

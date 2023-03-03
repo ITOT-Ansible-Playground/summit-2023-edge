@@ -1,0 +1,4 @@
+---
+net_vlans:
+  - name: Mfg1
+    vlan_id: 31

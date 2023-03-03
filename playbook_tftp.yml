@@ -1,0 +1,71 @@
+---
+- name: Get Controller token
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Get Controller token
+      ansible.controller.token:
+        description: ztp-tftp {{ lookup('pipe', 'date') }}
+
+- name: Configure TFTP server
+  hosts: util
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Get service info
+      ansible.builtin.service_facts:
+
+    - name: Install tftp script
+      ansible.builtin.template:
+        src: ztp-tftp.py.j2
+        dest: "{{ tftp_path }}"
+      notify: Restart ztp-tftp
+
+    - name: Ensure pip installed
+      ansible.builtin.dnf:
+        name: python3-pip
+        state: present
+
+    - name: Install Python requirements
+      ansible.builtin.pip:
+        name:
+          - requests
+          - fbtftp
+
+    - name: Ensure permissions on TFTP directory
+      ansible.builtin.file:
+        path: "{{ tftp_root }}"
+        state: directory
+        mode: u=rwx,g=rwx,o=rwx
+
+    - name: Open firewall
+      ansible.posix.firewalld:
+        service: tftp
+        state: enabled
+        permanent: true
+        immediate: true
+      when:
+        - services['firewalld.service'] is defined
+        - services['firewalld.service']['state'] == 'running'
+
+    - name: Create network-confg
+      ansible.builtin.copy:
+        dest: "{{ tftp_root }}/network-confg"
+        content: "{{ lookup('file', 'network_base.cfg') }}"
+
+    - name: Create systemd service
+      ansible.builtin.template:
+        src: ztp-tftp.service.j2
+        dest: /etc/systemd/system/ztp-tftp.service
+      notify: Restart ztp-tftp
+
+  handlers:
+    - name: Restart ztp-tftp
+      ansible.builtin.systemd:
+        name: ztp-tftp.service
+        daemon_reload: true
+        state: restarted
+        enabled: true

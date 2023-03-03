@@ -1,0 +1,18 @@
+---
+- name: Configure Ansible Controller
+  hosts: controller
+  connection: local
+
+  vars:
+    controller_hostname: "{{ ansible_host }}"
+    controller_validate_certs: false
+
+  roles:
+    - infra.controller_configuration.organizations
+    - infra.controller_configuration.projects
+    - infra.controller_configuration.inventories
+    - infra.controller_configuration.inventory_sources
+    - infra.controller_configuration.inventory_source_update
+    - infra.controller_configuration.credentials
+    - infra.controller_configuration.execution_environments
+    - infra.controller_configuration.job_templates
