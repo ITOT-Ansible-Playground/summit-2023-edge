@@ -11,7 +11,8 @@ controller_projects:
   - name: Network ZTP
     organization: Network
     scm_type: git
-    scm_url: https://github.com/zjpeterson/summit-2023-edge.git
+    scm_url: https://github.com/ITOT-Ansible-Playground/summit-2023-edge.git
+    credential: Github aaron97neu
   - name: CIP Examples
     organization: Manufacturing
     scm_type: git
