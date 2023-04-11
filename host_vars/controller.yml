@@ -36,7 +36,7 @@ controller_credentials:
   - name: Network SSH
     organization: Network
     credential_type: Machine
-  - name: ZTP Launch
+  - name: ZTP Launch 2
     organization: Network
     credential_type: Red Hat Ansible Automation Platform
 
@@ -53,7 +53,7 @@ controller_templates:
     playbook: playbook_net_initial.yml
     credentials:
       - Network SSH
-      - ZTP Launch
+      - ZTP Launch 2
     execution_environment: Default execution environment
     ask_variables_on_launch: true
   - name: "{{ controller_jt_name_standard }}"
