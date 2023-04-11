@@ -40,9 +40,9 @@ controller_credentials:
     organization: Network
     credential_type: Red Hat Ansible Automation Platform
 
-controller_execution_environments:
-  - name: Industrial EE
-    image: quay.io/zachp/industrial-ee
+# controller_execution_environments:
+#   - name: Industrial EE
+#     image: quay.io/zachp/industrial-ee
 
 controller_templates:
   - name: "{{ controller_jt_name_initial }}"
@@ -71,10 +71,10 @@ controller_templates:
     inventory: PLCs
     project: CIP Examples
     playbook: playbooks/blink-led.yml
-    execution_environment: Industrial EE
+    execution_environment: pycomm3 ee Automation Hub Fitlet
   - name: Run motor
     organization: Manufacturing
     inventory: PLCs
     project: CIP Examples
     playbook: playbooks/run-motor.yml
-    execution_environment: Industrial EE
+    execution_environment: pycomm3 ee Automation Hub Fitlet
