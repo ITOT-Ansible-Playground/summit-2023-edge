@@ -1,4 +1,8 @@
 ---
 # stratix 5800 new non-proto
 needs_interface_cycle: true
-net_l2_interfaces: []
+net_l2_interfaces:
+  - name: GigabitEthernet1/3
+    mode: access
+    access:
+      vlan: 1
