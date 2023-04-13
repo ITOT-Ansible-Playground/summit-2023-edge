@@ -2,7 +2,7 @@
 # stratix 8000 (old)
 needs_interface_cycle: true
 net_l2_interfaces:
-  - name: GigabitEthernet1/1
+  - name: FastEthernet1/1
     mode: access
     access:
       vlan: 1
