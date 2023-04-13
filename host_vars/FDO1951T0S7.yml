@@ -1,1 +1,23 @@
+---
 # cisco IE 4000
+needs_interface_cycle: true
+net_l2_interfaces:
+  - name: GigabitEthernet1/1
+    mode: access
+    access:
+      vlan: 200
+  - name: GigabitEthernet1/2
+    mode: trunk
+    trunk:
+      allowed_vlans:
+        - 21
+        - 200
+      native_vlan: 200
+  - name: FastEthernet1/13
+    mode: access
+    access:
+      vlan: 21
+  - name: FastEthernet1/14
+    mode: access
+    access:
+      vlan: 21

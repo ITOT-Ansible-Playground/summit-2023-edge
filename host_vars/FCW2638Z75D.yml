@@ -1,1 +1,3 @@
 # stratix 5800 non-proto
+needs_interface_cycle: true
+net_l2_interfaces: []
