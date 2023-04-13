@@ -2,6 +2,7 @@
 all:
   hosts:
     controller:
-      ansible_host: pfeiffer.atlab
+      ansible_host: controller-aap.apps.openshift.dusinberre.atlab
     util:
-      ansible_host: pfeiffer.atlab
+      ansible_host: edge.ansibledemo.atlab
+      ansible_user: ra
