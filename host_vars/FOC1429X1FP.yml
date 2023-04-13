@@ -1,0 +1,4 @@
+---
+# stratix 8000 (old)
+needs_interface_cycle: true
+net_l2_interfaces: []
