@@ -4,3 +4,6 @@ network:
     FOC1631Y3VM:
       ansible_host: 192.168.10.101
       net_cidr: 24
+    FOC1429X1FP:
+      ansible_host: 192.168.21.14
+      net_cidr: 24
