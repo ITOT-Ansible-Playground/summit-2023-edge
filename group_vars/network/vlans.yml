@@ -1,4 +1,6 @@
 ---
 net_vlans:
-  - name: Mfg1
-    vlan_id: 31
+  - name: business
+    vlan_id: 200
+  - name: manufacturing
+    vlan_id: 21
