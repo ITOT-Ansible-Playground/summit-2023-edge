@@ -13,6 +13,10 @@ net_l2_interfaces:
         - 21
         - 200
       native_vlan: 200
+  - name: FastEthernet1/12
+    mode: access
+    access:
+      vlan: 21
   - name: FastEthernet1/13
     mode: access
     access:
