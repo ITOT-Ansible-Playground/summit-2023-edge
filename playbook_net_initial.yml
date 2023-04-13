@@ -36,6 +36,8 @@
           - name: Vlan1
             ipv4:
               - address: "{{ hostvars[ansible_net_serialnum]['ansible_host'] }}/{{ hostvars[ansible_net_serialnum]['net_cidr'] }}"
+                dhcp:
+                  enable: false
         state: merged
       ignore_errors: true
 
